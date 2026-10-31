@@ -1,0 +1,15 @@
+{
+ "prediction": "I think this is the bottom",
+ "author": "Jack Felke",
+ "prediction_date": "2026-10-30",
+ "usd": 10000,
+ "entry_price": 77034.07,
+ "entry_vwap_reference": 77042.19,
+ "btc_amount": 0.12981269,
+ "window": "2026-10-30T23:00:00Z to 2026-10-30T23:59:59Z (final hour of Oct 30 UTC)",
+ "method": "Arithmetic mean of 60 one-minute candle closes",
+ "source": "Coinbase Exchange public API, GET https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=60",
+ "tracking_start": "2026-10-30",
+ "tracking_end": "2026-11-15",
+ "hypothetical": true
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bitcoin Bottom Call — Tracking a Public Prediction</title>
+<style>
+:root{--fg:#1d1d1b;--mut:#5c5c58;--line:#d6d4cf;--bg:#fbfaf7;--card:#fff;--pos:#1f6b3a;--neg:#9b2c2c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 Georgia,"Times New Roman",serif}
+main{max-width:860px;margin:0 auto;padding:2rem 1.25rem 4rem}
+h1{font-size:1.9rem;line-height:1.25;margin:.2rem 0 .4rem;font-weight:normal}h2{font-size:1.2rem;margin:2.5rem 0 .6rem;border-bottom:1px solid var(--line);padding-bottom:.3rem;font-weight:normal}
+.kicker,.small,table,.stat .l{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}.kicker{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+blockquote{margin:1.5rem 0;padding:1rem 1.25rem;border-left:4px solid var(--fg);background:var(--card);font-size:1.5rem}blockquote footer{font-size:.95rem;color:var(--mut);margin-top:.4rem}
+.note{border:1px solid var(--line);background:var(--card);padding:.75rem 1rem;font-size:.95rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin-top:1rem}
+.stat{border:1px solid var(--line);background:var(--card);padding:.75rem 1rem}.stat .l{font-size:.78rem;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}.stat .v{font-size:1.35rem;font-variant-numeric:tabular-nums}
+.pos{color:var(--pos)}.neg{color:var(--neg)}.small{font-size:.85rem;color:var(--mut)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}td,th{border-bottom:1px solid var(--line);padding:.35rem .5rem;text-align:left;vertical-align:top}
+.chartbox{position:relative;height:340px;background:var(--card);border:1px solid var(--line);padding:.5rem}code{font-size:.85em;word-break:break-all}a{color:#1d4f7a}
+</style></head><body><main>
+<p class="kicker">Prediction tracker · Bitcoin (BTC-USD)</p>
+<h1>Tracking a public call on the Bitcoin bottom</h1>
+<blockquote id="quote">“I think this is the bottom.”<footer>— Jack Felke, Friday, October 30, 2026</footer></blockquote>
+<p class="note"><strong>Hypothetical position.</strong> This page tracks a simulated $10,000 purchase of Bitcoin. No real trade was made. Nothing here is financial advice.</p>
+<h2>Overview</h2>
+<div class="grid" aria-live="polite">
+<div class="stat"><div class="l">Entry price (Oct 30, 2026)</div><div class="v" id="entry">—</div></div>
+<div class="stat"><div class="l">BTC held (hypothetical)</div><div class="v" id="btc">—</div></div>
+<div class="stat"><div class="l">Current BTC price</div><div class="v" id="price">loading…</div></div>
+<div class="stat"><div class="l">Position value</div><div class="v" id="value">—</div></div>
+<div class="stat"><div class="l">Gain / loss</div><div class="v" id="pnl">—</div></div>
+<div class="stat"><div class="l">Gain / loss %</div><div class="v" id="pct">—</div></div>
+</div>
+<p class="small" id="updated">Last updated: —</p>
+<h2>BTC daily close, Oct 30 – Nov 15, 2026</h2>
+<div class="chartbox"><canvas id="chart" role="img" aria-label="Line chart of BTC daily closing price with dashed horizontal line at the entry price"></canvas></div>
+<p class="small">Daily closes (UTC) from Coinbase Exchange, refreshed every 6 hours by a scheduled job. The latest day may be partial. Dashed line: entry price.</p>
+<h2>Methodology</h2>
+<table><tbody id="meth"></tbody></table>
+<p class="small">Entry = mean of the closing prices of each one-minute BTC-USD candle in the window. BTC amount = $10,000 ÷ entry, rounded to 8 decimals. Current value = BTC amount × current spot price. Live price: Coinbase spot (<code>api.coinbase.com/v2/prices/BTC-USD/spot</code>), falling back to CoinGecko (<code>api.coingecko.com/api/v3/simple/price</code>), then to the most recent daily close in <code>data/prices.json</code>. Data files: <a href="data/position.json">position.json</a>, <a href="data/prices.json">prices.json</a>.</p>
+<p class="small">Tracking window: October 30 – November 15, 2026.</p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const usd=n=>n.toLocaleString("en-US",{style:"currency",currency:"USD"});
+const $=id=>document.getElementById(id);
+async function j(u){const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error(r.status);return r.json()}
+async function live(){
+ try{const d=await j("https://api.coinbase.com/v2/prices/BTC-USD/spot");return{p:+d.data.amount,src:"Coinbase spot",t:new Date()}}catch(e){}
+ try{const d=await j("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");return{p:+d.bitcoin.usd,src:"CoinGecko",t:new Date()}}catch(e){}
+ return null}
+(async()=>{
+ const pos=await j("data/position.json");let pr={prices:[]};try{pr=await j("data/prices.json")}catch(e){}
+ $("entry").textContent=usd(pos.entry_price);$("btc").textContent=pos.btc_amount.toFixed(8);
+ const rows=[["Prediction",`“${pos.prediction}” — ${pos.author}, ${pos.prediction_date}`],["Notional",usd(pos.usd)],["Entry price",usd(pos.entry_price)],["Window",pos.window],["Method",pos.method],["Reference VWAP (same window)",usd(pos.entry_vwap_reference)],["Source",pos.source],["BTC amount",pos.btc_amount.toFixed(8)+" BTC"],["Tracking",pos.tracking_start+" to "+pos.tracking_end]];
+ $("meth").innerHTML=rows.map(r=>`<tr><th scope="row">${r[0]}</th><td>${r[1]}</td></tr>`).join("");
+ let L=await live();
+ if(!L&&pr.prices.length){const last=pr.prices[pr.prices.length-1];L={p:last.close,src:`prices.json daily close for ${last.date} (file updated ${pr.updated})`,t:null}}
+ if(L){const v=pos.btc_amount*L.p,g=v-pos.usd,c=g>=0?"pos":"neg",s=g>=0?"+":"−";
+  $("price").textContent=usd(L.p);$("value").textContent=usd(v);
+  $("pnl").textContent=s+usd(Math.abs(g));$("pnl").className="v "+c;
+  $("pct").textContent=s+Math.abs(g/pos.usd*100).toFixed(2)+"%";$("pct").className="v "+c;
+  $("updated").textContent="Last updated: "+(L.t?L.t.toLocaleString()+" (local time)":"see source")+" · Source: "+L.src;}
+ else $("price").textContent="unavailable";
+ const labels=[];for(let d=new Date("2026-10-30T00:00:00Z");d<=new Date("2026-11-15T00:00:00Z");d.setUTCDate(d.getUTCDate()+1))labels.push(d.toISOString().slice(0,10));
+ const m=Object.fromEntries(pr.prices.map(x=>[x.date,x.close]));
+ new Chart($("chart"),{type:"line",data:{labels:labels.map(l=>l.slice(5)),datasets:[
+  {label:"BTC daily close (USD)",data:labels.map(l=>m[l]??null),borderColor:"#1d1d1b",backgroundColor:"#1d1d1b",pointRadius:3,tension:0,spanGaps:false},
+  {label:"Entry "+usd(pos.entry_price),data:labels.map(()=>pos.entry_price),borderColor:"#9b2c2c",borderDash:[6,4],pointRadius:0,borderWidth:1.5}]},
+  options:{maintainAspectRatio:false,animation:false,scales:{y:{ticks:{callback:v=>"$"+v.toLocaleString()}}},plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+": "+usd(c.parsed.y)}}}}});
+})();
+</script></body></html>
