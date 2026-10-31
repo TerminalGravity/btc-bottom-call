@@ -31,7 +31,7 @@ table{border-collapse:collapse;width:100%;font-size:.9rem}td,th{border-bottom:1p
 <p class="small" id="updated">Last updated: —</p>
 <h2>BTC daily close, Oct 30 – Nov 15, 2026</h2>
 <div class="chartbox"><canvas id="chart" role="img" aria-label="Line chart of BTC daily closing price with dashed horizontal line at the entry price"></canvas></div>
-<p class="small">Daily closes (UTC) from Coinbase Exchange, refreshed every 6 hours by a scheduled job. The latest day may be partial. Dashed line: entry price.</p>
+<p class="small">Daily closes (UTC) from Coinbase Exchange, stored in data/prices.json (seeded Oct 31, 2026 00:45 UTC). The latest day may be partial. Dashed line: entry price.</p>
 <h2>Methodology</h2>
 <table><tbody id="meth"></tbody></table>
 <p class="small">Entry = mean of the closing prices of each one-minute BTC-USD candle in the window. BTC amount = $10,000 ÷ entry, rounded to 8 decimals. Current value = BTC amount × current spot price. Live price: Coinbase spot (<code>api.coinbase.com/v2/prices/BTC-USD/spot</code>), falling back to CoinGecko (<code>api.coingecko.com/api/v3/simple/price</code>), then to the most recent daily close in <code>data/prices.json</code>. Data files: <a href="data/position.json">position.json</a>, <a href="data/prices.json">prices.json</a>.</p>
