@@ -1,6 +1,6 @@
 {
  "source": "Coinbase Exchange daily candles (BTC-USD, UTC days; latest day may be partial)",
- "updated": "2026-10-31T11:13:28Z",
+ "updated": "2026-11-01T07:43:03Z",
  "prices": [
   {
    "date": "2026-10-30",
@@ -8,7 +8,11 @@
   },
   {
    "date": "2026-10-31",
-   "close": 77280.67
+   "close": 77423.98
+  },
+  {
+   "date": "2026-11-01",
+   "close": 77734.47
   }
  ]
 }
